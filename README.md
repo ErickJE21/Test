@@ -1,61 +1,211 @@
-<a href="https://chat.vercel.ai/">
-  <img alt="Next.js 14 and App Router-ready AI chatbot." src="app/(chat)/opengraph-image.png">
-  <h1 align="center">Next.js Gemini Chatbot</h1>
-</a>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Minha Loja de Apps</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      color: #333;
+    }
+    header {
+      background: #6200ea;
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 {
+      font-size: 18px;
+    }
+    header button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 22px;
+      cursor: pointer;
+    }
+    .container {
+      padding: 10px;
+    }
+    .app-card {
+      background: white;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+      transition: transform 0.2s;
+    }
+    .app-card:hover {
+      transform: scale(1.01);
+    }
+    .app-card img {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    .app-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .app-info h2 {
+      font-size: 16px;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .app-info p {
+      font-size: 13px;
+      color: #555;
+      max-height: 36px;
+      overflow: hidden;
+    }
+    .app-info small {
+      font-size: 12px;
+      color: #777;
+      display: block;
+      margin-top: 4px;
+    }
+    .download-btn {
+      background: #6200ea;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    /* Tela de pesquisa */
+    #search-screen {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #fff;
+      z-index: 20;
+      overflow-y: auto;
+    }
+    #search-screen header {
+      background: #6200ea;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #search-screen header h2 {
+      font-size: 16px;
+      color: white;
+    }
+    #search-screen header button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    #search-input {
+      width: 100%;
+      padding: 10px;
+      margin: 12px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Minha Loja</h1>
+    <button onclick="openSearch()">🔍</button>
+  </header>
+  
+  <div class="container" id="app-list"></div>
 
-<p align="center">
-  An Open-Source AI Chatbot Template Built With Next.js and the AI SDK by Vercel.
-</p>
+  <!-- Tela de pesquisa -->
+  <div id="search-screen">
+    <header>
+      <h2>Pesquisar</h2>
+      <button onclick="closeSearch()">✖</button>
+    </header>
+    <div class="container">
+      <input type="text" id="search-input" placeholder="Digite o nome do app..." oninput="searchApps()">
+      <div id="search-results"></div>
+    </div>
+  </div>
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#model-providers"><strong>Model Providers</strong></a> ·
-  <a href="#deploy-your-own"><strong>Deploy Your Own</strong></a> ·
-  <a href="#running-locally"><strong>Running locally</strong></a>
-</p>
-<br/>
+  <script>
+    const API_URL = "https://billing.developerbox.xyz/apimaker/apiforlink.php?token=7zeytk8ibvtnw1r0xtrr";
+    let appsData = [];
 
-## Features
+    async function loadApps() {
+      try {
+        const response = await fetch(API_URL);
+        appsData = await response.json();
+        renderApps(appsData, "app-list");
+      } catch (error) {
+        console.error("Erro ao carregar apps:", error);
+        document.getElementById("app-list").innerHTML = "<p>Erro ao carregar apps.</p>";
+      }
+    }
 
-- [Next.js](https://nextjs.org) App Router
-  - Advanced routing for seamless navigation and performance
-  - React Server Components (RSCs) and Server Actions for server-side rendering and increased performance
-- [AI SDK](https://sdk.vercel.ai/docs)
-  - Unified API for generating text, structured objects, and tool calls with LLMs
-  - Hooks for building dynamic chat and generative user interfaces
-  - Supports Google (default), OpenAI, Anthropic, Cohere, and other model providers
-- [shadcn/ui](https://ui.shadcn.com)
-  - Styling with [Tailwind CSS](https://tailwindcss.com)
-  - Component primitives from [Radix UI](https://radix-ui.com) for accessibility and flexibility
-- Data Persistence
-  - [Vercel Postgres powered by Neon](https://vercel.com/storage/postgres) for saving chat history and user data
-  - [Vercel Blob](https://vercel.com/storage/blob) for efficient object storage
-- [NextAuth.js](https://github.com/nextauthjs/next-auth)
-  - Simple and secure authentication
+    function renderApps(data, containerId) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+      if (!data.length) {
+        container.innerHTML = "<p>Nenhum app encontrado.</p>";
+        return;
+      }
+      data.forEach(app => {
+        const descricao = (app.descricao || "").replace(/\*\*/g, "").replace(/\n/g, " ");
+        const card = document.createElement("div");
+        card.className = "app-card";
+        card.innerHTML = `
+          <img src="${app.img_url}" alt="${app.nome}">
+          <div class="app-info">
+            <h2>${app.nome}</h2>
+            <p>${descricao}</p>
+            <small>Dev: ${app.developer} • Versão: ${app.versao}</small>
+          </div>
+          <a href="${app.link}" target="_blank">
+            <button class="download-btn">Baixar</button>
+          </a>
+        `;
+        container.appendChild(card);
+      });
+    }
 
-## Model Providers
+    function openSearch() {
+      document.getElementById("search-screen").style.display = "block";
+      document.getElementById("search-input").focus();
+    }
 
-This template ships with Google Gemini `gemini-1.5-pro` models as the default. However, with the [AI SDK](https://sdk.vercel.ai/docs), you can switch LLM providers to [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), [Cohere](https://cohere.com/), and [many more](https://sdk.vercel.ai/providers/ai-sdk-providers) with just a few lines of code.
+    function closeSearch() {
+      document.getElementById("search-screen").style.display = "none";
+      document.getElementById("search-input").value = "";
+      document.getElementById("search-results").innerHTML = "";
+    }
 
-## Deploy Your Own
+    function searchApps() {
+      const query = document.getElementById("search-input").value.toLowerCase();
+      const filtered = appsData.filter(app => 
+        app.nome.toLowerCase().includes(query)
+      );
+      renderApps(filtered, "search-results");
+    }
 
-You can deploy your own version of the Next.js AI Chatbot to Vercel with one click:
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fgemini-chatbot&env=AUTH_SECRET,GOOGLE_GENERATIVE_AI_API_KEY&envDescription=Learn%20more%20about%20how%20to%20get%20the%20API%20Keys%20for%20the%20application&envLink=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fgemini-chatbot%2Fblob%2Fmain%2F.env.example&demo-title=Next.js%20Gemini%20Chatbot&demo-description=An%20Open-Source%20AI%20Chatbot%20Template%20Built%20With%20Next.js%20and%20the%20AI%20SDK%20by%20Vercel.&demo-url=https%3A%2F%2Fgemini.vercel.ai&stores=[{%22type%22:%22postgres%22},{%22type%22:%22blob%22}])
-
-## Running locally
-
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run Next.js AI Chatbot. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
-
-> Note: You should not commit your `.env` file or it will expose secrets that will allow others to control access to your various Google Cloud and authentication provider accounts.
-
-1. Install Vercel CLI: `npm i -g vercel`
-2. Link local instance with Vercel and GitHub accounts (creates `.vercel` directory): `vercel link`
-3. Download your environment variables: `vercel env pull`
-
-```bash
-pnpm install
-pnpm dev
-```
-
-Your app template should now be running on [localhost:3000](http://localhost:3000/).
+    loadApps();
+  </script>
+</body>
+</html>
